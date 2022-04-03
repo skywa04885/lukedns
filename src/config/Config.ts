@@ -28,7 +28,7 @@ export class Config {
 
   protected constructor(config_file?: string) {
     if (!config_file) {
-      config_file = path.join(__dirname, '../', '../', 'config.yaml');
+      config_file = path.join(__dirname, '../', '../', 'locals', 'config.yaml');
     }
 
     const config_file_contents: string = fs.readFileSync(config_file, {
