@@ -20,7 +20,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { IPv4Address } from "llibipaddress";
+import {IPv4Address, IPv6Address} from "llibipaddress";
 import { CharacterString } from "./datatypes/CharacterString";
 import { LabelSequence } from "./datatypes/LabelSequence";
 import { UINT16_SIZE, UINT32_SIZE } from "./Types";
@@ -190,8 +190,8 @@ export class PTR_ResourceRecordData extends ResourceRecordData {
 
 export class SOA_ResourceRecordData extends ResourceRecordData {
   public constructor(
-    public mname: LabelSequence,
-    public rname: LabelSequence,
+    public m_name: LabelSequence,
+    public r_name: LabelSequence,
     public serial: number,
     public refresh: number,
     public retry: number,
@@ -204,8 +204,8 @@ export class SOA_ResourceRecordData extends ResourceRecordData {
   public encode(): Buffer {
     // Calculates the size for the buffer and allocates it.
     const buffer_size: number =
-      this.mname.uncompressed_size +
-      this.rname.uncompressed_size +
+      this.m_name.uncompressed_size +
+      this.r_name.uncompressed_size +
       UINT32_SIZE +
       UINT32_SIZE +
       UINT32_SIZE +
@@ -215,8 +215,8 @@ export class SOA_ResourceRecordData extends ResourceRecordData {
     let offset: number = 0;
 
     // Writes the mname and rname.
-    const mname_encoded: Buffer = this.mname.encode();
-    const rname_encoded: Buffer = this.rname.encode();
+    const mname_encoded: Buffer = this.m_name.encode();
+    const rname_encoded: Buffer = this.r_name.encode();
     mname_encoded.copy(buffer, offset, 0, mname_encoded.length);
     offset += mname_encoded.length;
     rname_encoded.copy(buffer, offset, 0, rname_encoded.length);
@@ -227,7 +227,7 @@ export class SOA_ResourceRecordData extends ResourceRecordData {
     offset += UINT32_SIZE;
     buffer.writeUint32BE(this.refresh, offset);
     offset += UINT32_SIZE;
-    buffer.writeUint32BE(this.refresh, offset);
+    buffer.writeUint32BE(this.retry, offset);
     offset += UINT32_SIZE;
     buffer.writeUint32BE(this.expire, offset);
     offset += UINT32_SIZE;
@@ -271,6 +271,26 @@ export class TXT_ResourceRecordData extends ResourceRecordData {
 
 export class A_ResourceRecordData extends ResourceRecordData {
   public constructor(public address: IPv4Address) {
+    super();
+  }
+
+  public encode(): Buffer {
+    return this.address.buffer;
+  }
+}
+
+///////////////////////////////////////////////////
+// DNS ResourceRecordData AAAA
+///////////////////////////////////////////////////
+
+/*
+  +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+  |                    ADDRESS                    |
+  +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+*/
+
+export class AAAA_ResourceRecordData extends ResourceRecordData {
+  public constructor(public address: IPv6Address) {
     super();
   }
 

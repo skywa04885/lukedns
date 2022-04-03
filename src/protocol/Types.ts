@@ -7,8 +7,9 @@ export const UINT64_SIZE: number = 8;
 // DNS Resource Record
 ///////////////////////////
 
-export enum RRType {
+export enum Type {
   A = 1,
+  AAAA = 28,
   NS = 2,
   CNAME = 5,
   SOA = 6,
@@ -20,17 +21,21 @@ export enum RRType {
   TXT = 16,
 }
 
-export function rr_type_to_string(rrtype: RRType) {
+export enum QType {
+  AXFR = 252
+}
+
+export function rr_type_to_string(rrtype: Type) {
   switch (rrtype) {
-    case RRType.A: return 'A';
-    case RRType.CNAME: return 'CNAME';
-    case RRType.SOA: return 'SOA';
-    case RRType.NULL: return 'NULL';
-    case RRType.WKS: return 'WKS';
-    case RRType.PTR: return 'PTR';
-    case RRType.HINFO: return 'HINFO';
-    case RRType.MX: return 'MX';
-    case RRType.TXT: return 'TXT';
+    case Type.A: return 'A';
+    case Type.CNAME: return 'CNAME';
+    case Type.SOA: return 'SOA';
+    case Type.NULL: return 'NULL';
+    case Type.WKS: return 'WKS';
+    case Type.PTR: return 'PTR';
+    case Type.HINFO: return 'HINFO';
+    case Type.MX: return 'MX';
+    case Type.TXT: return 'TXT';
   }
 }
 

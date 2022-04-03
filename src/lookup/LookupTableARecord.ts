@@ -1,8 +1,8 @@
 import {LookupTableRecord} from "./LookupTableRecord";
 import {IPv4Address} from "llibipaddress";
-import {DNSClass, RRType} from "../proto/Types";
-import {A_ResourceRecordData, ResourceRecordData} from "../proto/ResourceRecordData";
-import {LabelSequence} from "../proto/datatypes/LabelSequence";
+import {DNSClass, Type} from "../protocol/Types";
+import {A_ResourceRecordData, ResourceRecordData} from "../protocol/ResourceRecordData";
+import {LabelSequence} from "../protocol/datatypes/LabelSequence";
 
 export class LookupTableARecord extends LookupTableRecord {
     public address: IPv4Address;
@@ -12,7 +12,7 @@ export class LookupTableARecord extends LookupTableRecord {
         ttl_s: number,
         address: IPv4Address
     ) {
-        super(RRType.A, DNSClass.IN, labels, ttl_s);
+        super(Type.A, DNSClass.IN, labels, ttl_s);
 
         this.address = address;
     }

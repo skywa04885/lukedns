@@ -21,12 +21,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 import { LabelSequence } from "./datatypes/LabelSequence";
-import {
-  DNSClass,
-  RRType,
-  UINT16_SIZE,
-  UINT32_SIZE,
-} from "./Types";
+import {DNSClass, QType, Type, UINT16_SIZE, UINT32_SIZE} from "./Types";
 import { IPv4Address } from "llibipaddress";
 
 /*
@@ -54,15 +49,15 @@ import { IPv4Address } from "llibipaddress";
 export class RR {
   public constructor(
     public name: LabelSequence,
-    public type: RRType,
+    public type: Type | QType,
     public class_: DNSClass,
     public ttl: number,
-    public rdata: Buffer,
+    public rdata: Buffer
   ) {}
 
   public static decode(buffer: Buffer, offset: number = 0): [number, RR] {
     // Gets the name.
-    const [ name_offset, name ] = LabelSequence.decode(buffer, offset);
+    const [name_offset, name] = LabelSequence.decode(buffer, offset);
     offset = name_offset;
 
     // Gets the numbers.

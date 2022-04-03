@@ -1,5 +1,5 @@
 import {LookupTableZone} from "./LookupTableZone";
-import {LabelSequence} from "../proto/datatypes/LabelSequence";
+import {LabelSequence} from "../protocol/datatypes/LabelSequence";
 
 export interface LookupTableBranch {
     zone?: LookupTableZone,

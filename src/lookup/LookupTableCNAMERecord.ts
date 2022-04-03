@@ -1,7 +1,7 @@
 import {LookupTableRecord} from "./LookupTableRecord";
-import {DNSClass, RRType} from "../proto/Types";
-import {CNAME_ResourceRecordData, ResourceRecordData} from "../proto/ResourceRecordData";
-import {LabelSequence} from "../proto/datatypes/LabelSequence";
+import {DNSClass, Type} from "../protocol/Types";
+import {CNAME_ResourceRecordData, ResourceRecordData} from "../protocol/ResourceRecordData";
+import {LabelSequence} from "../protocol/datatypes/LabelSequence";
 
 export class LookupTableCNAMERecord extends LookupTableRecord {
     public constructor(
@@ -9,7 +9,7 @@ export class LookupTableCNAMERecord extends LookupTableRecord {
         ttl_s: number,
         public cname: LabelSequence
     ) {
-        super(RRType.CNAME, DNSClass.IN, labels, ttl_s);
+        super(Type.CNAME, DNSClass.IN, labels, ttl_s);
     }
 
     public get rdata(): ResourceRecordData{

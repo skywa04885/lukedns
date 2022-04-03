@@ -1,16 +1,16 @@
 import {LookupTableRecord} from "./LookupTableRecord";
-import {DNSClass, RRType} from "../proto/Types";
-import {HINFO_ResourceRecordData, ResourceRecordData} from "../proto/ResourceRecordData";
+import {DNSClass, Type} from "../protocol/Types";
+import {HINFO_ResourceRecordData, ResourceRecordData} from "../protocol/ResourceRecordData";
 import os from "os";
-import {CharacterString} from "../proto/datatypes/CharacterString";
-import {LabelSequence} from "../proto/datatypes/LabelSequence";
+import {CharacterString} from "../protocol/datatypes/CharacterString";
+import {LabelSequence} from "../protocol/datatypes/LabelSequence";
 
 export class LookupTableHINFORecord extends LookupTableRecord {
     protected _cpu: CharacterString;
     protected _os: CharacterString;
 
     public constructor(labels: LabelSequence, ttl_s: number) {
-        super(RRType.HINFO, DNSClass.IN, labels, ttl_s);
+        super(Type.HINFO, DNSClass.IN, labels, ttl_s);
 
         // Processes the CPU's.
         let processed_cpus: { [key: string]: number } = {};

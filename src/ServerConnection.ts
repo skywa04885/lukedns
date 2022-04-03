@@ -1,16 +1,82 @@
 import dgram from "dgram";
 import net from "net";
-import { Message } from "./proto/Message";
+import { Message } from "./protocol/Message";
 import { Server } from "./Server";
 import { TCPStream } from "./TCPStream";
-import { MessageHeaderFlags, MessageHeaderResponseCode } from "./proto/Types";
+import {
+  DNSClass,
+  DNSQClass,
+  MessageHeaderFlags,
+  MessageHeaderResponseCode,
+  QType,
+} from "./protocol/Types";
 import { LookupTableZone } from "./lookup/LookupTableZone";
 import { LookupTable } from "./lookup/LookupTable";
 import { LookupTableRecord } from "./lookup/LookupTableRecord";
 import { Statistics } from "./Statistics";
+import { QuestionSection } from "./protocol/QuestionSection";
+import { LabelSequence } from "./protocol/datatypes/LabelSequence";
+
+export enum ServerConnectionType {
+  TCP = "TCP",
+  UDP = "UDP",
+}
 
 export class ServerConnection {
-  public constructor(protected _server: Server) {}
+  public constructor(
+    protected _type: ServerConnectionType,
+    protected _server: Server
+  ) {}
+
+  protected _on_axfr_question(message: Message) {
+    // Checks if we're actually dealing with a TCP connection, if not refuse the AXFR request.
+    if (this._type !== ServerConnectionType.TCP) {
+      message.header.response_code = MessageHeaderResponseCode.Refused;
+      return this._write(message);
+    }
+
+    // Gets the question from the message.
+    const question: QuestionSection = message.question!;
+
+    // Gets the name of the zone requested.
+    const requested_zone_name: LabelSequence = question.qname;
+    const requested_zone_class: DNSClass | DNSQClass = question.qclass;
+
+    // Gets the zone based on the name and class.
+    const zone: LookupTableZone | undefined =
+      LookupTable.instance.match_zone(requested_zone_name);
+    if (!zone) {
+      message.header.response_code = MessageHeaderResponseCode.NameError;
+      return this._write(message);
+    }
+
+    // Writes all the records to the client.
+    [
+      // Always begin with SOA.
+      zone.records.soa,
+      // The other's order doesn't matter.
+      zone.records.txt,
+      zone.records.ptr,
+      zone.records.ns,
+      zone.records.mx,
+      zone.records.ns,
+      zone.records.h_info,
+      zone.records.cname,
+      zone.records.a,
+      zone.records.aaaa,
+      // Always end with SOA
+      zone.records.soa,
+    ].forEach((records: LookupTableRecord[]): void => {
+      records.forEach((record: LookupTableRecord): void => {
+        message.push_answer(record.rr);
+      });
+    });
+
+    // Writes the response.
+    message.header.set_flags(MessageHeaderFlags.AA);
+    message.header.response_code = MessageHeaderResponseCode.NoError;
+    this._write(message);
+  }
 
   /**
    * Gets called when a new message is received.
@@ -26,6 +92,10 @@ export class ServerConnection {
       message.header.response_code = MessageHeaderResponseCode.Refused;
       this._write(message);
       return;
+    }
+
+    if (message.question.qtype === QType.AXFR) {
+      return this._on_axfr_question(message);
     }
 
     // Gets the zone for which we can query the records, if it does not exist
@@ -79,7 +149,7 @@ export class TCPServerConnection extends ServerConnection {
   protected _tcp_stream: TCPStream;
 
   public constructor(_server: Server, _socket: net.Socket) {
-    super(_server);
+    super(ServerConnectionType.TCP, _server);
 
     this._socket = _socket;
 
@@ -112,7 +182,7 @@ export class UDPServerConnecton extends ServerConnection {
     _server: Server,
     protected _remote_info: dgram.RemoteInfo
   ) {
-    super(_server);
+    super(ServerConnectionType.UDP, _server);
   }
 
   /**

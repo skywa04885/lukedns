@@ -1,7 +1,7 @@
 import {LookupTableRecord} from "./LookupTableRecord";
-import {DNSClass, RRType} from "../proto/Types";
-import {PTR_ResourceRecordData, ResourceRecordData} from "../proto/ResourceRecordData";
-import {LabelSequence} from "../proto/datatypes/LabelSequence";
+import {DNSClass, Type} from "../protocol/Types";
+import {PTR_ResourceRecordData, ResourceRecordData} from "../protocol/ResourceRecordData";
+import {LabelSequence} from "../protocol/datatypes/LabelSequence";
 
 export class LookupTablePTRRecord extends LookupTableRecord {
     public constructor(
@@ -9,7 +9,7 @@ export class LookupTablePTRRecord extends LookupTableRecord {
         ttl_s: number,
         public ptr: LabelSequence
     ) {
-        super(RRType.PTR, DNSClass.IN, labels, ttl_s);
+        super(Type.PTR, DNSClass.IN, labels, ttl_s);
     }
 
     public get rdata(): ResourceRecordData{

@@ -1,17 +1,17 @@
 import { LabelSequence } from "./datatypes/LabelSequence";
-import { DNSClass, DNSQClass, RRType, UINT16_SIZE } from "./Types";
+import {DNSClass, DNSQClass, QType, Type, UINT16_SIZE} from "./Types";
 
 export class QuestionSection {
     public constructor(
         public qname: LabelSequence,
-        public qtype: RRType,
+        public qtype: Type | QType,
         public qclass: DNSClass | DNSQClass
     ) { }
 
     public static decode(buffer: Buffer, offset: number = 0): [number, QuestionSection] {
         const [qname_offset, qname] = LabelSequence.decode(buffer, offset);
         offset = qname_offset;
-        const qtype: RRType = buffer.readUint16BE(offset)
+        const qtype: Type = buffer.readUint16BE(offset)
         offset += UINT16_SIZE;
         const qclass: DNSClass | DNSQClass = buffer.readUint16BE(offset);
         offset += UINT16_SIZE;

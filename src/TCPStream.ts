@@ -1,5 +1,5 @@
 import { Writable } from "stream";
-import { UINT16_SIZE } from "./proto/Types";
+import { UINT16_SIZE } from "./protocol/Types";
 
 export type TCPStreamMessageCallback = (message: Buffer) => void;
 

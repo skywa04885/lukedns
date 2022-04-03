@@ -1,20 +1,25 @@
 import fs from "fs";
 import yaml from "js-yaml";
-import {IConfigRoot} from "./Config";
-import {LookupTableZone} from "../lookup/LookupTableZone";
-import {LookupTableARecord} from "../lookup/LookupTableARecord";
-import {LookupTableRecord} from "../lookup/LookupTableRecord";
-import {LabelSequence} from "../proto/datatypes/LabelSequence";
-import {IPv4Address} from "llibipaddress";
-import {LookupTableMXRecord} from "../lookup/LookupTableMXRecord";
-import {LookupTableTXTRecord} from "../lookup/LookupTableTXTRecord";
-import {CharacterString} from "../proto/datatypes/CharacterString";
-import {LookupTableNSRecord} from "../lookup/LookupTableNSRecord";
-import {LookupTablePTRRecord} from "../lookup/LookupTablePTRRecord";
-import {LookupTableCNAMERecord} from "../lookup/LookupTableCNAMERecord";
+import {
+  LookupTableZone,
+  LookupTableZoneRecords,
+} from "../lookup/LookupTableZone";
+import { LookupTableARecord } from "../lookup/LookupTableARecord";
+import { LookupTableRecord } from "../lookup/LookupTableRecord";
+import { LabelSequence } from "../protocol/datatypes/LabelSequence";
+import { IPv4Address, IPv6Address } from "llibipaddress";
+import { LookupTableMXRecord } from "../lookup/LookupTableMXRecord";
+import { LookupTableTXTRecord } from "../lookup/LookupTableTXTRecord";
+import { CharacterString } from "../protocol/datatypes/CharacterString";
+import { LookupTableNSRecord } from "../lookup/LookupTableNSRecord";
+import { LookupTablePTRRecord } from "../lookup/LookupTablePTRRecord";
+import { LookupTableCNAMERecord } from "../lookup/LookupTableCNAMERecord";
+import { LookupTableAAAARecord } from "../lookup/LookupTableAAAARecord";
+import { DNSClass } from "../protocol/Types";
+import { LookupTableSOARecord } from "../lookup/LookupTableSOARecord";
 
 export enum EConfigRecordClass {
-  IN = 'IN',
+  IN = "IN",
 }
 
 export enum EConfigRecordType {
@@ -25,7 +30,7 @@ export enum EConfigRecordType {
   PTR = 'PTR',
   CNAME = 'CNAME',
   TXT = 'TXT',
-  SOA = 'SOA',
+  SOA = 'SOA'
 }
 
 export interface IConfigZoneDefaults {
@@ -78,6 +83,16 @@ export interface IConfigZoneRecordCNAME extends IConfigZoneRecord {
 export interface IConfigZoneRecordSOA extends IConfigZoneRecord {
   nameserver: string;
   administrator: string;
+  serial: number;
+  refresh: number;
+  retry: number;
+  expire: number;
+  minimum: number;
+}
+
+export interface IConfigZoneRecordSOA extends IConfigZoneRecord {
+  nameserver: string;
+  administrator: string;
   refresh: number;
   retry: number;
   expire: number;
@@ -87,8 +102,11 @@ export class ConfigZone {
   public readonly origin: string;
   public readonly defaults: IConfigZoneDefaults;
   public readonly records: IConfigZoneRecord[];
+  public readonly file_stats: fs.Stats;
 
   public constructor(zone_file: string) {
+    this.file_stats = fs.statSync(zone_file);
+
     const zone_file_contents: string = fs.readFileSync(zone_file, {
       encoding: 'utf-8'
     });
@@ -121,6 +139,15 @@ export class ConfigZone {
       this.parse_name(record.name),
       record.ttl ?? this.defaults.ttl,
       IPv4Address.decode(record.address)
+    );
+  }
+
+  protected parse_record_aaaa(record: IConfigZoneRecordAAAA): LookupTableRecord {
+    return new LookupTableAAAARecord(
+      DNSClass.IN,
+      this.parse_name(record.name),
+      record.ttl ?? this.defaults.ttl,
+      IPv6Address.decode(record.address)
     );
   }
 
@@ -163,6 +190,21 @@ export class ConfigZone {
       record.preference
     );
   }
+  
+  protected parse_record_soa(record: IConfigZoneRecordSOA): LookupTableRecord {
+    return new LookupTableSOARecord(
+      DNSClass.IN,
+      this.parse_name(record.name),
+      record.ttl ?? this.defaults.ttl,
+      LabelSequence.from(record.nameserver),
+      LabelSequence.from(record.administrator),
+      Math.round((this.file_stats.mtime.getTime()) / 1000),
+      record.refresh,
+      record.retry,
+      record.expire,
+      record.minimum
+    );
+  }
 
   public parse_record(record: IConfigZoneRecord): LookupTableRecord {
     switch (record.type) {
@@ -178,18 +220,68 @@ export class ConfigZone {
         return this.parse_record_ptr(record as IConfigZoneRecordPTR);
       case EConfigRecordType.TXT:
         return this.parse_record_txt(record as IConfigZoneRecordTXT);
+      case EConfigRecordType.AAAA:
+        return this.parse_record_aaaa(record as IConfigZoneRecordAAAA);
+      case EConfigRecordType.SOA:
+        return this.parse_record_soa(record as IConfigZoneRecordSOA);
       default:
         throw new Error(`Record type '${record.type}' is not implemented!`);
     }
   }
 
   public parse_zone(): LookupTableZone {
-    const records: LookupTableRecord[] = this.records.map((record: IConfigZoneRecord): LookupTableRecord => {
-      return this.parse_record(record);
+    let zone_records: LookupTableZoneRecords = {
+      a: [],
+      aaaa: [],
+      cname: [],
+      h_info: [],
+      mx: [],
+      ns: [],
+      ptr: [],
+      txt: [],
+      soa: []
+    };
+
+    this.records.forEach((record: IConfigZoneRecord): void => {
+      const parsed: LookupTableRecord = this.parse_record(record);
+      switch (record.type) {
+        case EConfigRecordType.A:
+          zone_records.a.push(parsed as LookupTableARecord);
+          break;
+        case EConfigRecordType.AAAA:
+          zone_records.aaaa.push(parsed as LookupTableAAAARecord);
+          break;
+        case EConfigRecordType.CNAME:
+          zone_records.cname.push(parsed as LookupTableCNAMERecord);
+          break;
+        case EConfigRecordType.MX:
+          zone_records.mx.push(parsed as LookupTableMXRecord);
+          break;
+        case EConfigRecordType.NS:
+          zone_records.ns.push(parsed as LookupTableNSRecord);
+          break;
+        case EConfigRecordType.PTR:
+          zone_records.ptr.push(parsed as LookupTablePTRRecord);
+          break;
+        case EConfigRecordType.TXT:
+          zone_records.txt.push(parsed as LookupTableTXTRecord);
+          break;
+        case EConfigRecordType.SOA:
+          zone_records.soa.push(parsed as LookupTableSOARecord);
+          break;
+        default:
+          throw new Error(`Unsupported record type '${record.type}'`);
+      }
     });
+
+    if (zone_records.soa.length < 1) {
+      throw new Error('At least one SOA record is required.');
+    } else if (zone_records.soa.length > 1) {
+      throw new Error('Max one SOA record is allowed.');
+    }
 
     const origin: LabelSequence = LabelSequence.from(this.origin);
 
-    return new LookupTableZone(origin, records);
+    return new LookupTableZone(origin, zone_records);
   }
 }

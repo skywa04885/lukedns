@@ -1,8 +1,8 @@
 import {LookupTableRecord} from "./LookupTableRecord";
-import {DNSClass, RRType} from "../proto/Types";
-import {ResourceRecordData, TXT_ResourceRecordData} from "../proto/ResourceRecordData";
-import {CharacterString} from "../proto/datatypes/CharacterString";
-import {LabelSequence} from "../proto/datatypes/LabelSequence";
+import {DNSClass, Type} from "../protocol/Types";
+import {ResourceRecordData, TXT_ResourceRecordData} from "../protocol/ResourceRecordData";
+import {CharacterString} from "../protocol/datatypes/CharacterString";
+import {LabelSequence} from "../protocol/datatypes/LabelSequence";
 
 export class LookupTableTXTRecord extends LookupTableRecord {
     /**
@@ -12,7 +12,7 @@ export class LookupTableTXTRecord extends LookupTableRecord {
      * @param txt_s the txt data.
      */
     public constructor(labels: LabelSequence, ttl_s: number, public txt_s: CharacterString[]) {
-        super(RRType.TXT, DNSClass.IN, labels, ttl_s);
+        super(Type.TXT, DNSClass.IN, labels, ttl_s);
     }
 
     public get rdata(): ResourceRecordData{

@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import { Statistics } from "../Statistics";
 import { LookupTable } from "../lookup/LookupTable";
-import { rr_type_to_string } from "../proto/Types";
+import { rr_type_to_string } from "../protocol/Types";
 import { Config } from "../config/Config";
 
 export class App {
