@@ -22,7 +22,6 @@ export interface IConfigRoot {
 
 export class Config {
   protected static _instance?: Config;
-
   public readonly server: IConfigServer;
   public readonly zones: string[]
 
@@ -38,7 +37,9 @@ export class Config {
     const yaml_contents: IConfigRoot = yaml.load(config_file_contents) as IConfigRoot;
 
     this.server = yaml_contents.server;
-    this.zones = yaml_contents.zones;
+    this.zones = yaml_contents.zones.map((zone: string): string => {
+      return path.join(path.dirname(config_file!), zone);
+    });
   }
 
   public static get instance(): Config {
@@ -51,7 +52,7 @@ export class Config {
 
   public get_zones(): LookupTableZone[] {
     return this.zones.map((zone: string): LookupTableZone => {
-      return new ConfigZone(zone).parse_zone();
+      return new ConfigZone(path.join(zone)).parse_zone();
     });
   }
 }

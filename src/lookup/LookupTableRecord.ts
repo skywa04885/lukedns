@@ -1,4 +1,4 @@
-import { DNSClass, QType, rr_type_to_string, Type } from "../protocol/Types";
+import { DNSClass, QType, type_to_string, Type } from "../protocol/Types";
 import { ResourceRecordData } from "../protocol/ResourceRecordData";
 import { RR } from "../protocol/ResourceRecord";
 import { LabelSequence } from "../protocol/datatypes/LabelSequence";

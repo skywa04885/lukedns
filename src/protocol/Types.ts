@@ -25,8 +25,23 @@ export enum QType {
   AXFR = 252
 }
 
-export function rr_type_to_string(rrtype: Type) {
-  switch (rrtype) {
+export function class_to_string(cls: DNSClass) {
+  switch (cls) {
+    case DNSClass.CH:
+      return 'CH';
+    case DNSClass.IN:
+      return 'IN';
+    case DNSClass.CS:
+      return 'CS';
+    case DNSClass.HS:
+      return 'HS';
+    default:
+      throw new Error(`Invalid dns class: '${cls}'`);
+  }
+}
+
+export function type_to_string(type: Type) {
+  switch (type) {
     case Type.A: return 'A';
     case Type.CNAME: return 'CNAME';
     case Type.SOA: return 'SOA';
@@ -36,6 +51,9 @@ export function rr_type_to_string(rrtype: Type) {
     case Type.HINFO: return 'HINFO';
     case Type.MX: return 'MX';
     case Type.TXT: return 'TXT';
+    case Type.AAAA: return 'AAAA';
+    default:
+      throw new Error(`Invalid type: '${type}'`);
   }
 }
 

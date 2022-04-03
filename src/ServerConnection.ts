@@ -53,19 +53,19 @@ export class ServerConnection {
     // Writes all the records to the client.
     [
       // Always begin with SOA.
-      zone.records.soa,
+      zone._records.soa,
       // The other's order doesn't matter.
-      zone.records.txt,
-      zone.records.ptr,
-      zone.records.ns,
-      zone.records.mx,
-      zone.records.ns,
-      zone.records.h_info,
-      zone.records.cname,
-      zone.records.a,
-      zone.records.aaaa,
+      zone._records.txt,
+      zone._records.ptr,
+      zone._records.ns,
+      zone._records.mx,
+      zone._records.ns,
+      zone._records.h_info,
+      zone._records.cname,
+      zone._records.a,
+      zone._records.aaaa,
       // Always end with SOA
-      zone.records.soa,
+      zone._records.soa,
     ].forEach((records: LookupTableRecord[]): void => {
       records.forEach((record: LookupTableRecord): void => {
         message.push_answer(record.rr);

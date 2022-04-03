@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import { Statistics } from "../Statistics";
 import { LookupTable } from "../lookup/LookupTable";
-import { rr_type_to_string } from "../protocol/Types";
+import {class_to_string, type_to_string} from "../protocol/Types";
 import { Config } from "../config/Config";
 
 export class App {
@@ -29,7 +29,8 @@ export class App {
         statistics: Statistics.instance,
         lookup_table: LookupTable.instance,
         config: Config.instance,
-        rr_type_to_string,
+        type_to_string,
+        class_to_string
       });
     });
 

@@ -85,7 +85,7 @@ export class LookupTable {
     public insert_zone(zone: LookupTableZone): void {
         // Starts looping over the origin in reverse, and creates the branches.
         let branch: LookupTableBranch = this._root_branch;
-        for (const label of zone.origin.reverse_generator()) {
+        for (const label of zone._origin.reverse_generator()) {
             // If the branch exists, just go into it, and continue.
             if (branch.children[label]) {
                 branch = branch.children[label];

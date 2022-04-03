@@ -27,30 +27,48 @@ export interface LookupTableZoneRecords {
 
 export class LookupTableZone {
   public constructor(
-    public readonly origin: LabelSequence,
-    public records: LookupTableZoneRecords
+    public readonly _origin: LabelSequence,
+    public _records: LookupTableZoneRecords
   ) {}
+
+  public get origin(): LabelSequence {
+    return this._origin;
+  }
+
+  public get records(): LookupTableRecord[] {
+    return [
+      ...this._records.a,
+      ...this._records.aaaa,
+      ...this._records.cname,
+      ...this._records.h_info,
+      ...this._records.mx,
+      ...this._records.ns,
+      ...this._records.ptr,
+      ...this._records.txt,
+      ...this._records.soa,
+    ];
+  }
 
   public records_of_type(type: Type | QType): LookupTableRecord[] {
     switch (type) {
       case Type.A:
-        return this.records.a;
+        return this._records.a;
       case Type.AAAA:
-        return this.records.aaaa;
+        return this._records.aaaa;
       case Type.CNAME:
-        return this.records.cname;
+        return this._records.cname;
       case Type.HINFO:
-        return this.records.h_info;
+        return this._records.h_info;
       case Type.MX:
-        return this.records.mx;
+        return this._records.mx;
       case Type.NS:
-        return this.records.ns;
+        return this._records.ns;
       case Type.PTR:
-        return this.records.ptr;
+        return this._records.ptr;
       case Type.TXT:
-        return this.records.txt;
+        return this._records.txt;
       case Type.SOA:
-        return this.records.soa;
+        return this._records.soa;
       default:
         return [];
     }
