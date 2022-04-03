@@ -1,27 +1,27 @@
-origin: fannst.nl.
+origin: fannst.nl
 defaults:
-  ttl: 60s
+  ttl: 60
   class: IN
 records:
-  - name: @
+  - name: ~
     type: A
     address: 127.0.0.1
-  - name: @
+  - name: ~
     type: TXT
-    txts:
+    texts:
       - v=spf1 mx a ip4:86.89.30.158 ip4:207.180.225.138 ip6:2a02:a44d:cd6b:1:8c15:5bbf:7088:6490 ip6:2a02:c205:2043:1965::/64 -all
-  - name: @
+  - name: ~
     type: TXT
-    txts:
+    texts:
       - v=ldns1
   - name: _dmarc
     type: TXT
-    txts:
+    texts:
       - v=DMARC1; p=reject; sp=reject; rua=mailto:reports@fannst.nl; ruf=mailto:reports@fannst.nl
-  - name: @
+  - name: ~
     type: MX
     preference: 1
-    exchange: eu01-lukemail
-  - name: eu01-lukemail
+    exchange: eu01-lukemail.
+  - name: eu01-lukemail.
     type: A
     address: 207.180.225.138

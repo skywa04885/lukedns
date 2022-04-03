@@ -1,16 +1,11 @@
-# The configuration for the DNS server.
-dns:
-  # UDP DNS.
+server:
   udp_port: 53
   udp_host: 0.0.0.0
-  # TCP DNS.
   tcp_port: 53
   tcp_host: 0.0.0.0
-# The configuration for the API.
-api:
-  port: 8040
-  host: 0.0.0.0
-  backlog: 50
-# Contains all the zones.
+  tcp_backlog: 100
+  api_port: 8040
+  api_host: 0.0.0.0
+  api_backlog: 20
 zones:
   - fannst.yaml

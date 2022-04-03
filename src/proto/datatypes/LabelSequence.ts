@@ -127,6 +127,14 @@ export class LabelSequence {
   }
 
   /**
+   * Checks if the label sequence ends with the given label.
+   * @param label the label.
+   */
+  public ends_with(label: string) {
+    return this.labels.at(this.labels.length - 1) === label;
+  }
+
+  /**
    * Gets the label at the given index.
    * @param index the index.
    */

@@ -1,6 +1,7 @@
 import dgram from "dgram";
 import net from "net";
 import { TCPServerConnection, UDPServerConnecton } from "./ServerConnection";
+import { Config } from "./config/Config";
 
 export class Server {
   protected static _instance: Server;
@@ -29,7 +30,7 @@ export class Server {
         this._handle_udp(buffer, r_info)
     );
 
-    this._dgram_socket.bind(53);
+    this._dgram_socket.bind(Config.instance.server.udp_port, Config.instance.server.udp_host);
 
     this._tcp_server = net.createServer();
 
@@ -37,7 +38,11 @@ export class Server {
       new TCPServerConnection(this, socket);
     });
 
-    this._tcp_server.listen(53);
+    this._tcp_server.listen(
+      Config.instance.server.tcp_port,
+      Config.instance.server.tcp_host,
+      Config.instance.server.tcp_backlog
+    );
   }
 
   /**

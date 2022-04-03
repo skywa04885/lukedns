@@ -69,14 +69,23 @@ export class LookupTable {
     }
 
     /**
+     * Inserts all the given zones.
+     * @param zones the zones.
+     */
+    public insert_zones(zones: LookupTableZone[]): void {
+        zones.forEach((zone: LookupTableZone): void => {
+            this.insert_zone(zone);
+        });
+    }
+
+    /**
      * Inserts a new zone into the lookup table.
-     * @param labels the labels.
      * @param zone the zone.
      */
-    public insert_zone(labels: LabelSequence, zone: LookupTableZone) {
-        // Starts looping over the labels in reverse, and creates the branches.
+    public insert_zone(zone: LookupTableZone): void {
+        // Starts looping over the origin in reverse, and creates the branches.
         let branch: LookupTableBranch = this._root_branch;
-        for (const label of labels.reverse_generator()) {
+        for (const label of zone.origin.reverse_generator()) {
             // If the branch exists, just go into it, and continue.
             if (branch.children[label]) {
                 branch = branch.children[label];
