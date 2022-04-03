@@ -24,4 +24,4 @@ records:
     exchange: eu01-lukemail.
   - name: eu01-lukemail.
     type: A
-    address: 207.180.225.138
+    address: 207.180s.225.138
