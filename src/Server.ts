@@ -2,6 +2,7 @@ import dgram from "dgram";
 import net from "net";
 import { TCPServerConnection, UDPServerConnecton } from "./ServerConnection";
 import { Config } from "./config/Config";
+import {logger} from "./logger";
 
 export class Server {
   protected static _instance: Server;
@@ -24,6 +25,7 @@ export class Server {
   protected constructor() {
     this._dgram_socket = dgram.createSocket("udp4");
 
+    this._dgram_socket.on('error', this._on_udp_error);
     this._dgram_socket.on(
       "message",
       (buffer: Buffer, r_info: dgram.RemoteInfo): void =>
@@ -33,7 +35,7 @@ export class Server {
     this._dgram_socket.bind(Config.instance.server.udp_port, Config.instance.server.udp_host);
 
     this._tcp_server = net.createServer();
-
+    this._tcp_server.on('error', this._on_tcp_server_error)
     this._tcp_server.on("connection", (socket: net.Socket): void => {
       new TCPServerConnection(this, socket);
     });
@@ -43,6 +45,24 @@ export class Server {
       Config.instance.server.tcp_host,
       Config.instance.server.tcp_backlog
     );
+  }
+
+  /**
+   * Gets called when an error occurred on the UDP socket.
+   * @param error the error.
+   * @protected
+   */
+  protected _on_udp_error(error: Error) {
+    logger.error('An error occurred on the UDP DNS socket: ', error);
+  }
+
+  /**
+   * Gets called when an error occurred on the TCP server.
+   * @param error the error.
+   * @protected
+   */
+  protected _on_tcp_server_error(error: Error) {
+    logger.error('An error occurred on the TCP DNS Server: ', error);
   }
 
   /**

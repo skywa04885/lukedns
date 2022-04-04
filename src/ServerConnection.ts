@@ -16,6 +16,7 @@ import { LookupTableRecord } from "./lookup/LookupTableRecord";
 import { Statistics } from "./Statistics";
 import { QuestionSection } from "./protocol/QuestionSection";
 import { LabelSequence } from "./protocol/datatypes/LabelSequence";
+import {logger} from "./logger";
 
 export enum ServerConnectionType {
   TCP = "TCP",
@@ -152,6 +153,7 @@ export class TCPServerConnection extends ServerConnection {
     super(ServerConnectionType.TCP, _server);
 
     this._socket = _socket;
+    this._socket.on('error', this._on_error);
 
     this._tcp_stream = new TCPStream((buffer: Buffer) => {
       Statistics.instance.increment_tcp_query_count();
@@ -174,6 +176,10 @@ export class TCPServerConnection extends ServerConnection {
    */
   protected _on_stream_message(buffer: Buffer): void {
     this._on_message(buffer);
+  }
+
+  protected _on_error(error: Error): void {
+    logger.error('An error occurred in a TCP server connection: ', error);
   }
 }
 
