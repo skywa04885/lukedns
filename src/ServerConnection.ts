@@ -153,24 +153,8 @@ export class ServerConnection {
         break;
       }
       // Handles all the standard records.
-      case Type.AAAA:
-      case Type.TXT:
-      case Type.A:
-      case Type.MX:
-      case Type.HINFO:
-      case Type.CNAME:
-      case Type.PTR:
-      case Type.SOA:
-      case Type.NS: {
-        this._on_general_record_question(message);
-        break;
-      }
-      // Logs that we couldn't handle the request.
       default: {
-        logger.warn(
-          `Couldn't handle question of q-type ${message.question.qtype} because of missing implementation.`
-        );
-        this._on_unimplemented_question(message);
+        this._on_general_record_question(message);
         break;
       }
     }
