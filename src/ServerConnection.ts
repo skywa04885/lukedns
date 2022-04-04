@@ -67,7 +67,6 @@ export class ServerConnection {
       zone._records.ptr,
       zone._records.ns,
       zone._records.mx,
-      zone._records.ns,
       zone._records.h_info,
       zone._records.cname,
       zone._records.a,
