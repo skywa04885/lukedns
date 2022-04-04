@@ -28,7 +28,10 @@ block content
                     td= statistics.udp_query_count
                 tr
                     th(scope="row") Total DNS Zone Transfers (AXFR)
-                    td= statistics.udp_query_count
+                    td= statistics.axfr_query_count
+                tr
+                    th(scope="row") Uptime
+                    td= uptime
         hr
         h2 Active Services
         table.table.table-hover.table-striped

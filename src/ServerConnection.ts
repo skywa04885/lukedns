@@ -37,6 +37,9 @@ export class ServerConnection {
    * @protected
    */
   protected _on_axfr_question(message: Message) {
+    // Increments the AXFR statistic.
+    Statistics.instance.increment_axfr_query_count();
+
     // Checks if we're actually dealing with a TCP connection, if not refuse the AXFR request.
     if (this._type !== ServerConnectionType.TCP) {
       message.header.response_code = MessageHeaderResponseCode.Refused;
@@ -105,13 +108,6 @@ export class ServerConnection {
       message.question!.qname,
       message.question!.qtype
     );
-
-    // If there are no found records, respond with an error.
-    if (records.length === 0) {
-      message.header.response_code = MessageHeaderResponseCode.NameError;
-      this._write(message);
-      return;
-    }
 
     // Processes the matches and adds them to the answers.
     records.forEach((record: LookupTableRecord): void =>
