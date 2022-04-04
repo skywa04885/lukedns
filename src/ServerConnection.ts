@@ -178,10 +178,6 @@ export class ServerConnection {
         break;
       }
     }
-
-    if (message.question.qtype === QType.AXFR) {
-      return this._on_axfr_question(message);
-    }
   }
 
   /**
