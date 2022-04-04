@@ -1,0 +1,26 @@
+extends ../layouts/base.pug
+
+block content
+    include ../include/nav.pug
+    div.container.bg-light.p-4
+        h2
+            span.d-inline-block.align-middle.me-4= log_file_name
+            span.d-inline-block.align-middle
+                a.btn.btn-primary.btn-lg(href="/auth/download-log/" + log_file_name) Download (#{stats.size} bytes)
+        hr
+        form(method="GET")
+            div.input-group.mb-3
+                input.form-control(name="max", type='text' placeholder="Max entries" value=max_entries aria-label="Max entries" aria-describedby='max_entries_btn')
+                button#max_entries_btn.btn.btn-outline-primary(type='submit') Apply
+        table.table.table-striped.table-hover
+            thead
+                tr
+                    th(scope="col") Timestamp
+                    th(scope="col") Level
+                    th(scope="col") Message
+            tbody
+                each entry in entries
+                    tr
+                        td= entry.timestamp
+                        td= entry.level
+                        td= entry.message

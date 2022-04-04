@@ -1,0 +1,23 @@
+extends ../layouts/base.pug
+
+block content
+    include ../include/nav.pug
+    div.container.bg-light.p-4
+        h2 Logs
+        hr
+        table.table.table-hover.table-striped
+            thead
+                th(scope="col")
+                th(scope="col") File
+                th(scope="col") Size
+                th(scope="col") Created
+                th(scope="col") Modified
+            tbody
+                each file in files
+                    tr
+                        td
+                            a.btn.btn-primary(href="/auth/log/" + encodeURIComponent(file.name)) View
+                        td= file.name
+                        td= file.stat.size
+                        td= file.stat.ctime.toLocaleString()
+                        td= file.stat.mtime.toLocaleString()

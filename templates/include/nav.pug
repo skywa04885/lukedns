@@ -1,0 +1,15 @@
+nav.navbar.navbar-expand-lg.navbar-dark.bg-primary
+    div.container-fluid
+        a.navbar-brand LukeDNS
+        button.navbar-toggler(type="button", data-bs-toggle="collapse", data-bs-target="#navbar" aria-controls="navbar", aria-expanded="false", aria-label="Toggle Navigation")
+            span.navbar-toggler-icon
+        div.collapse.navbar-collapse#navbar
+            ul.navbar-nav
+                li.nav-item
+                    a.nav-link(href="/") Index
+                li.nav-item.dropdown
+                    a#auth_dropdown.nav-link.dropdown-toggle(role='button' data-bs-toggle='dropdown' aria-expanded='false')
+                        | Authenticated
+                    ul.dropdown-menu.dropdown-menu-dark(aria-labelledby='auth_dropdown')
+                        li
+                            a.dropdown-item(href='/auth/logs') Logs

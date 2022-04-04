@@ -9,6 +9,7 @@ import {
   MessageHeaderFlags,
   MessageHeaderResponseCode,
   QType,
+  Type,
 } from "./protocol/Types";
 import { LookupTableZone } from "./lookup/LookupTableZone";
 import { LookupTable } from "./lookup/LookupTable";
@@ -16,7 +17,7 @@ import { LookupTableRecord } from "./lookup/LookupTableRecord";
 import { Statistics } from "./Statistics";
 import { QuestionSection } from "./protocol/QuestionSection";
 import { LabelSequence } from "./protocol/datatypes/LabelSequence";
-import {logger} from "./logger";
+import { logger } from "./logger";
 
 export enum ServerConnectionType {
   TCP = "TCP",
@@ -29,6 +30,11 @@ export class ServerConnection {
     protected _server: Server
   ) {}
 
+  /**
+   * Gets called on a AXFR question.
+   * @param message the message containing the question.
+   * @protected
+   */
   protected _on_axfr_question(message: Message) {
     // Checks if we're actually dealing with a TCP connection, if not refuse the AXFR request.
     if (this._type !== ServerConnectionType.TCP) {
@@ -79,30 +85,11 @@ export class ServerConnection {
     this._write(message);
   }
 
-  /**
-   * Gets called when a new message is received.
-   * @param buffer the buffer containing the message.
-   */
-  protected _on_message(buffer: Buffer) {
-    // Parses the message, and sets the flag indicating the response.
-    let [, message] = Message.decode(buffer);
-    message.header.set_flags(MessageHeaderFlags.QR);
-
-    // Checks if there are any questions at all.
-    if (!message.question) {
-      message.header.response_code = MessageHeaderResponseCode.Refused;
-      this._write(message);
-      return;
-    }
-
-    if (message.question.qtype === QType.AXFR) {
-      return this._on_axfr_question(message);
-    }
-
+  protected _on_general_record_question(message: Message) {
     // Gets the zone for which we can query the records, if it does not exist
     //  send an error telling that we don't have access to that domain.
     const zone: LookupTableZone | undefined = LookupTable.instance.match_zone(
-      message.question.qname
+      message.question!.qname
     );
     if (!zone) {
       message.header.response_code = MessageHeaderResponseCode.NameError;
@@ -115,8 +102,8 @@ export class ServerConnection {
 
     // Looks for matching records in the zone.
     const records: LookupTableRecord[] = zone.match_records(
-      message.question.qname,
-      message.question.qtype
+      message.question!.qname,
+      message.question!.qtype
     );
 
     // If there are no found records, respond with an error.
@@ -137,6 +124,67 @@ export class ServerConnection {
   }
 
   /**
+   * Gets called when there has been a request for which we haven't implemented something.
+   * @param message the message.
+   * @protected
+   */
+  protected _on_unimplemented_question(message: Message) {
+    message.header.response_code = MessageHeaderResponseCode.NotImplemented;
+    return this._write(message);
+  }
+
+  /**
+   * Gets called when a new message is received.
+   * @param buffer the buffer containing the message.
+   */
+  protected _on_message(buffer: Buffer) {
+    // Parses the message, and sets the flag indicating the response.
+    let [, message] = Message.decode(buffer);
+    message.header.set_flags(MessageHeaderFlags.QR);
+
+    // Checks if there are any questions at all.
+    if (!message.question) {
+      message.header.response_code = MessageHeaderResponseCode.Refused;
+      this._write(message);
+      return;
+    }
+
+    // Checks the question type and calls the appropriate function.
+    switch (message.question.qtype) {
+      // Handles the AXFR questions.
+      case QType.AXFR: {
+        this._on_axfr_question(message);
+        break;
+      }
+      // Handles all the standard records.
+      case Type.AAAA:
+      case Type.TXT:
+      case Type.A:
+      case Type.MX:
+      case Type.HINFO:
+      case Type.CNAME:
+      case Type.PTR:
+      case Type.SOA:
+      case Type.NS: {
+        this._on_general_record_question(message);
+        break;
+      }
+      // Logs that we couldn't handle the request.
+      default: {
+        logger.warn(
+          `Couldn't handle question of q-type ${message.question.qtype} because of missing implementation.`
+        );
+        this._on_unimplemented_question(message);
+        break;
+      }
+    }
+
+    if (message.question.qtype === QType.AXFR) {
+      return this._on_axfr_question(message);
+    }
+  }
+
+  /**
    * Writes the given buffer to the socket.
    * @param message the message to write to the socket.
    */
@@ -153,7 +201,7 @@ export class TCPServerConnection extends ServerConnection {
     super(ServerConnectionType.TCP, _server);
 
     this._socket = _socket;
-    this._socket.on('error', this._on_error);
+    this._socket.on("error", this._on_error);
 
     this._tcp_stream = new TCPStream((buffer: Buffer) => {
       Statistics.instance.increment_tcp_query_count();
@@ -179,7 +227,7 @@ export class TCPServerConnection extends ServerConnection {
   }
 
   protected _on_error(error: Error): void {
-    logger.error('An error occurred in a TCP server connection: ', error);
+    logger.error("An error occurred in a TCP server connection: ", { error });
   }
 }
 

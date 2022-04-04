@@ -1,78 +1,70 @@
-doctype html
-html(lang="en")
-    head
-        // Default meta.
-        meta(charset="UTF-8")
-        meta(http-equiv="X-UA-Compatible", content="IE=edge")
-        meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title LukeDNS
-        // Bootstrap
-        link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3", crossorigin="anonymous")
-        script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js", integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p", crossorigin="anonymous")
-    body.bg-black
-        div.container.text-center.bg-dark
-            img(src="/static/images/luke.png", width="250px")
-            h1.text-white LukeDNS
-            p.text-light.
-                This page tells you that the current server runs an LukeDNS instance, LukeDNS is an open-source
-                DNS Server written in NodeJS with educational purposes kept in mind. Bellow there are a few
-                quick statistics about this current instance, and which zones it's authoring.
-            hr.border-0.border-top.border-light
-            h2.text-white Statistics
-            table.table.table-dark.table-hover.table-striped
-                thead
-                    tr
-                        th(scope="col") Name
-                        th(scope="col") Value
-                tbody
-                    tr
-                        th(scope="row") Total DNS Queries (TCP/UDP)
-                        td= statistics.tcp_query_count + statistics.udp_query_count
-                    tr
-                        th(scope="row") Total DNS Queries (TCP)
-                        td= statistics.tcp_query_count
-                    tr
-                        th(scope="row") Total DNS Questions (UDP)
-                        td= statistics.udp_query_count
-            hr.border-0.border-top.border-light
-            h2.text-white Active Services
-            table.table.table-dark.table-hover.table-striped
-                thead
-                    tr
-                        th(scope="col") Service
-                        th(scope="col") At
-                tbody
-                    tr
-                        th(scope="row") DNS (UDP)
-                        td #{config.server.udp_host}:#{config.server.udp_port}
-                    tr
-                        th(scope="row") DNS (TCP)
-                        td #{config.server.tcp_host}:#{config.server.tcp_port}
-                    tr
-                        th(scope="row") API (HTTP)
-                        td #{config.server.api_host}:#{config.server.api_port}
-            hr.border-0.border-top.border-light
-            h2.text-white Zones
-            ul.list-group.list-group-flush
-            each zone in lookup_table.zones
-                li.list-group-item.bg-dark.border-0
-                    table.table.table-dark.table-hover.table-striped
-                        caption.caption-top.text-light Zone (Authoritative), #{zone.origin.joined}, #{zone.records.length} Record#{zone.records.length === 1 ? '' : '(s)'}
-                        thead
+extends layouts/base.pug
+
+block content
+    include ./include/nav.pug
+    div.container.text-center.bg-light
+        img(src="/static/images/luke.png", width="250px")
+        h1 LukeDNS
+        p.text-muted.
+            This page tells you that the current server runs an LukeDNS instance, LukeDNS is an open-source
+            DNS Server written in NodeJS with educational purposes kept in mind. Bellow there are a few
+            quick statistics about this current instance, and which zones it's authoring.
+        hr
+        h2 Statistics
+        table.table.table-hover.table-striped
+            thead
+                tr
+                    th(scope="col") Name
+                    th(scope="col") Value
+            tbody
+                tr
+                    th(scope="row") Total DNS Queries (TCP/UDP)
+                    td= statistics.tcp_query_count + statistics.udp_query_count
+                tr
+                    th(scope="row") Total DNS Queries (TCP)
+                    td= statistics.tcp_query_count
+                tr
+                    th(scope="row") Total DNS Questions (UDP)
+                    td= statistics.udp_query_count
+        hr
+        h2 Active Services
+        table.table.table-hover.table-striped
+            thead
+                tr
+                    th(scope="col") Service
+                    th(scope="col") At
+            tbody
+                tr
+                    th(scope="row") DNS (UDP)
+                    td #{config.server.udp_host}:#{config.server.udp_port}
+                tr
+                    th(scope="row") DNS (TCP)
+                    td #{config.server.tcp_host}:#{config.server.tcp_port}
+                tr
+                    th(scope="row") API (HTTP)
+                    td #{config.server.api_host}:#{config.server.api_port}
+        hr
+        h2 Zones
+        ul.list-group.list-group-flush
+        each zone in lookup_table.zones
+            li.list-group-item
+                table.table.table-hover.table-striped
+                    caption.caption-top Zone (Authoritative), #{zone.origin.joined}, #{zone.records.length} Record#{zone.records.length === 1 ? '' : '(s)'}
+                    thead
+                        tr
+                            th(scope="col") Name
+                            th(scope="col") Class
+                            th(scope="col") Type
+                            th(scope="col") TTL
+                    tbody
+                        each record in zone.records
                             tr
-                                th(scope="col") Name
-                                th(scope="col") Class
-                                th(scope="col") Type
-                                th(scope="col") TTL
-                        tbody
-                            each record in zone.records
-                                tr
-                                    th(scope="col")= record.labels.joined
-                                    td= class_to_string(record.cls)
-                                    td= type_to_string(record.type)
-                                    td #{record.ttl} seconds
-            hr.border-0.border-top.border-light
-            p.text-light.
-                When it comes to viewing the source code or altering it, pull requests can be made
-                in the repo specified bellow, I'll try to review them as soon as possible.
-            a.btn.btn-lg.btn-outline-light(href="https://github.com/skywa04885/lukedns").mb-4 Github
+                                th(scope="col")= record.labels.joined
+                                td= class_to_string(record.cls)
+                                td= type_to_string(record.type)
+                                td #{record.ttl} seconds
+        hr
+        p.text-muted.
+            When it comes to viewing the source code or altering it, pull requests can be made
+            in the repo specified bellow, I'll try to review them as soon as possible.
+        a.btn.btn-lg.btn-outline-dark(href="https://github.com/skywa04885/lukedns").mb-4 Github

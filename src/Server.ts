@@ -37,7 +37,11 @@ export class Server {
     this._tcp_server = net.createServer();
     this._tcp_server.on('error', this._on_tcp_server_error)
     this._tcp_server.on("connection", (socket: net.Socket): void => {
-      new TCPServerConnection(this, socket);
+      try {
+        new TCPServerConnection(this, socket);
+      } catch (e) {
+        logger.error(`An error occurred in the TCP Server Connection:`, {error: e});
+      }
     });
 
     this._tcp_server.listen(

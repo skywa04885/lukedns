@@ -13,6 +13,7 @@ export interface IConfigServer {
   api_port: number;
   api_host: string;
   api_backlog: number;
+  api_auth: {[key: string]: string};
 }
 
 export interface IConfigRoot {
