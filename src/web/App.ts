@@ -112,6 +112,7 @@ export class App {
         config: Config.instance,
         type_to_string,
         class_to_string,
+        uptime: process.uptime()
       });
     });
 

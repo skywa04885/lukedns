@@ -18,6 +18,7 @@ import { Statistics } from "./Statistics";
 import { QuestionSection } from "./protocol/QuestionSection";
 import { LabelSequence } from "./protocol/datatypes/LabelSequence";
 import { logger } from "./logger";
+import { LookupTableSOARecord } from "./lookup/LookupTableSOARecord";
 
 export enum ServerConnectionType {
   TCP = "TCP",

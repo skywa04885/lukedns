@@ -35,6 +35,10 @@ export class LookupTableZone {
     return this._origin;
   }
 
+  public get soa(): LookupTableSOARecord[] {
+    return this._records.soa;
+  }
+
   public get records(): LookupTableRecord[] {
     return [
       ...this._records.a,

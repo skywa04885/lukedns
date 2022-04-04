@@ -43,6 +43,7 @@ export function class_to_string(cls: DNSClass) {
 export function type_to_string(type: Type) {
   switch (type) {
     case Type.A: return 'A';
+    case Type.NS: return 'NS';
     case Type.CNAME: return 'CNAME';
     case Type.SOA: return 'SOA';
     case Type.NULL: return 'NULL';

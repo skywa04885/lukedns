@@ -28,6 +28,11 @@ export class Message {
     this.header.nscount = 0;
   }
 
+  public push_authority(rr: RR): void {
+    this.authority_rrs.push(rr);
+    ++this.header.nscount;
+  }
+
   public clear_aditional(): void {
     this.aditional_rrs = [];
     this.header.arcount = 0;
